@@ -2,13 +2,10 @@
 
 import axios from 'axios';
 
-import Notiflix from 'notiflix';
-import 'notiflix/dist/notiflix-3.2.6.min.css';
-
 const apiKey = '39827668-13c2fa0efedd451aadbb8d885';
 const BASE_URL = 'https://pixabay.com/api/';
 
-export async function searchPhoto(query) {
+export async function searchPhoto(query, page) {
       try {
     const response = await axios.get(BASE_URL, {
       params: {
@@ -21,7 +18,7 @@ export async function searchPhoto(query) {
         perPage: 40,
       },
     });
-
+          console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('Error:', error);
