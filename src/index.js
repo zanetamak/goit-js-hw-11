@@ -84,42 +84,18 @@ const galleryElements = images => {
   lightbox.refresh();
 };
 
-const onLoad = async (e) => {
+const onLoad = async () => {
   page++; // numer strony jest zwiększany
 
   try {
       // query skasowane. nie musze szukać, bo ju znalazłam wcześniej
         console.log(query)
-    if (query === '') { 
-      Notiflix.Notify.warning('Enter your search query, please!');
-      return;
-    }
-
     const data = await searchPhoto(query, page); //pobranie danych
-
-    if (data.hits.length === 0) { // sprawdzam czy znaleziono jakis obraz
-      Notiflix.Notify.warning('Sorry, there are no images matching your search query. Please try again.'); // jeśli nie to info
-    } else {
-    
-      galleryElements(data.hits);  // Wyświetl znalezione obrazy
-
-      const totalHits = data.totalHits; // wyświetlenie ile jest obrazów
-      Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
-
-      // Sprawdź, czy należy wyświetlić przycisk btnLoadMore
-      if (data.totalHits <= page * perPage) {
-        btnLoadMore.style.display = 'none';
-        Notiflix.Notify.warning("We're sorry, but you've reached the end of search results.");
-      } else {
-        btnLoadMore.style.display = 'block';
-        };
-      searchForm.reset(); // Czyszczenie formularza
-        };
-    } catch (err) {
-    btnLoadMore.addEventListener('click', onLoad);
-    console.error('Error:', err);
-    Notiflix.Notify.failure('Oops! Something went wrong. Please try again later.');
+    galleryElements(data.hits);  // Wyświetl znalezione obrazy
+  } catch (err) {
+       console.error('Error:', err);
   }
 };
   
 btnLoadMore.addEventListener('click', onLoad);
+
