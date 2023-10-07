@@ -13,7 +13,7 @@ const btnLoadMore = document.querySelector('.load-more');
 
 const perPage = 40;
 let page = 1;
-
+let query = '';
 
 btnLoadMore.style.display = 'none';
 
@@ -22,14 +22,16 @@ const onSearch = async (e) => {
      console.log(e.target.elements)
     try {
       
-        const query = e.target.elements.searchQuery.value.trim();
+ query = e.target.elements.searchQuery.value.trim(); // skasowane const. dlaczego?
         console.log(query)
     if (query === '') { 
       Notiflix.Notify.warning('Enter your search query, please!');
       return;
     }
+    gallery.innerHTML = ''; // Czyszczenie konteneru z galerią
+    page = 1; // Resetowanie strony
 
-        const data = await searchPhoto(query, page); //pobranie danych
+    const data = await searchPhoto(query, page); //pobranie danych
 
     if (data.hits.length === 0) { // sprawdzam czy znaleziono jakis obraz
       Notiflix.Notify.warning('Sorry, there are no images matching your search query. Please try again.'); // jeśli nie to info
@@ -46,9 +48,11 @@ const onSearch = async (e) => {
         Notiflix.Notify.warning("We're sorry, but you've reached the end of search results.");
       } else {
         btnLoadMore.style.display = 'block';
-      }
-    }
-  } catch (err) {
+        };
+    e.target.reset();; // Czyszczenie formularza. miałam searchForm.reset. czy to było źle?
+        };
+    } catch (err) {
+    btnLoadMore.addEventListener('click', onLoad);
     console.error('Error:', err);
     Notiflix.Notify.failure('Oops! Something went wrong. Please try again later.');
   }
@@ -79,3 +83,43 @@ const galleryElements = images => {
   const lightbox = new SimpleLightbox('.photo-card a');
   lightbox.refresh();
 };
+
+const onLoad = async (e) => {
+  page++; // numer strony jest zwiększany
+
+  try {
+      // query skasowane. nie musze szukać, bo ju znalazłam wcześniej
+        console.log(query)
+    if (query === '') { 
+      Notiflix.Notify.warning('Enter your search query, please!');
+      return;
+    }
+
+    const data = await searchPhoto(query, page); //pobranie danych
+
+    if (data.hits.length === 0) { // sprawdzam czy znaleziono jakis obraz
+      Notiflix.Notify.warning('Sorry, there are no images matching your search query. Please try again.'); // jeśli nie to info
+    } else {
+    
+      galleryElements(data.hits);  // Wyświetl znalezione obrazy
+
+      const totalHits = data.totalHits; // wyświetlenie ile jest obrazów
+      Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+
+      // Sprawdź, czy należy wyświetlić przycisk btnLoadMore
+      if (data.totalHits <= page * perPage) {
+        btnLoadMore.style.display = 'none';
+        Notiflix.Notify.warning("We're sorry, but you've reached the end of search results.");
+      } else {
+        btnLoadMore.style.display = 'block';
+        };
+      searchForm.reset(); // Czyszczenie formularza
+        };
+    } catch (err) {
+    btnLoadMore.addEventListener('click', onLoad);
+    console.error('Error:', err);
+    Notiflix.Notify.failure('Oops! Something went wrong. Please try again later.');
+  }
+};
+  
+btnLoadMore.addEventListener('click', onLoad);
